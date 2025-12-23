@@ -75,5 +75,3 @@ Maximum Price: $230.00
     * Converts raw strings (e.g., "$1,200.00") into floats.
     * Extracts dates from strings like "Sold Oct 12, 2023" into standard Datetime objects.
     * **Outlier Logic**: Calculates `Q1` and `Q3` to determine the IQR. Any price falling outside `1.5 * IQR` is dropped.
-
-This tool is for educational purposes only. Web scraping may be subject to eBay's Terms of Service. Ensure you respect `robots.txt` policies and avoid sending excessive requests that could overload servers.
