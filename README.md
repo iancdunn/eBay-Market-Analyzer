@@ -35,7 +35,7 @@ A Python-based ETL tool that scrapes "Sold & Completed" listings from eBay to ge
 
 1.  Run the script:
     ```bash
-    python ebay_scraper.py
+    python ebay_market_analyzer.py
     ```
 
 2.  Enter the item name when prompted (e.g., `Sony WH-1000XM4`).
