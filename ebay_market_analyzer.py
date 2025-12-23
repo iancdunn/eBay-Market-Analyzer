@@ -96,6 +96,7 @@ def clean_data(data):
     u_bound = Q3 + 1.5 * IQR
     clean_df = df[(df['Price'] >= l_bound) & (df['Price'] <= u_bound)]
 
+    clean_df = clean_df.sort_values(by = 'Date Sold', ascending = False)
     return clean_df
 
 if __name__ == "__main__":
@@ -117,5 +118,6 @@ if __name__ == "__main__":
     print(f"Minimum Price: ${min_price:,.2f}")
     print(f"Maximum Price: ${max_price:,.2f}")
     print("=" * 30)
+
 
     clean_df.to_csv("item_sales.csv", index = False)
