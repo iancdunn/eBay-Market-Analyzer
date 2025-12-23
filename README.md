@@ -22,8 +22,8 @@ A Python-based ETL tool that scrapes "Sold & Completed" listings from eBay to ge
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/yourusername/ebay-market-scraper.git](https://github.com/yourusername/ebay-market-scraper.git)
-    cd ebay-market-scraper
+    git clone https://github.com/iancdunn/eBay-Market-Analyzer.git
+    cd eBay-Market-Analyzer
     ```
 
 2.  **Install dependencies:**
