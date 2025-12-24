@@ -57,11 +57,16 @@ def scrape_items(search_term):
                 continue
             item_data['price'] = price_txt
 
-            #Locates the date using a multi-selector strategy to handle eBay's variable view layouts
-            date_elem = item.find_element(By.CSS_SELECTOR, ".s-card__caption, .su-card-container__header")
+            #Extracts shipping info from generic secondary text elements
+            elems = item.find_elements(By.CSS_SELECTOR, ".large")
+            for elem in elems:
+                txt = elem.text.lower()
+                if "delivery" in txt:
+                    item_data['shipping'] = txt
+
+            date_elem = item.find_element(By.CSS_SELECTOR, ".default")
             item_data['date'] = date_elem.text
         except:
-
             continue
 
         items.append(item_data)
@@ -69,32 +74,38 @@ def scrape_items(search_term):
     driver.quit()
     return items
 
-
 def clean_data(data):
     """
     Transforms raw data into a clean DataFrame with float prices and datetime objects
     """
     df = pd.DataFrame(data)
-    df = df.rename(columns = {'price': 'Raw Price', 'date': 'Raw Date'})
+    df = df.rename(columns = {'price': 'Price', 'shipping': 'Shipping', 'date': 'Date Sold'})
 
-    #Cleans price
-    df['Price'] = df['Raw Price'].astype(str).str.replace(r'[$,]', '', regex = True)
+    df['Price'] = df['Price'].astype(str).str.replace(r'[$,]', '', regex = True)
     df['Price'] = pd.to_numeric(df['Price'], errors = 'coerce')
-    #Parses date
+
+    #Regex handles optional plus signs, currency symbols, and commas
+    shipping_format = r'\+?\$?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)'
+    df['Shipping'] = df['Shipping'].astype(str).str.extract(shipping_format, expand = False)
+    #Assumes NaN means free shipping or local pickup
+    df['Shipping'] = pd.to_numeric(df['Shipping'], errors = 'coerce').fillna(0.0)
+    
     date_format = r'Sold\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})'
-    df['Date Sold'] = df['Raw Date'].astype(str).str.extract(date_format, expand = False)
+    df['Date Sold'] = df['Date Sold'].astype(str).str.extract(date_format, expand = False)
     df['Date Sold'] = pd.to_datetime(df['Date Sold'], errors = 'coerce')
 
+    df['Total Price'] = df['Price'] + df['Shipping']
+    df['Total Price'] = df['Total Price'].round(2)
+
     df = df.dropna(subset = ['Price', 'Date Sold'])
-    df = df.drop(['Raw Price', 'Raw Date'], axis = 1)
 
     #Calculates IQR to identify and filter price outliers, removing likely irrelevant listings
-    Q1 = df['Price'].quantile(0.25)
-    Q3 = df['Price'].quantile(0.75)
+    Q1 = df['Total Price'].quantile(0.25)
+    Q3 = df['Total Price'].quantile(0.75)
     IQR = Q3 - Q1
     l_bound = Q1 - 1.5 * IQR
     u_bound = Q3 + 1.5 * IQR
-    clean_df = df[(df['Price'] >= l_bound) & (df['Price'] <= u_bound)]
+    clean_df = df[(df['Total Price'] >= l_bound) & (df['Total Price'] <= u_bound)]
 
     clean_df = clean_df.sort_values(by = 'Date Sold', ascending = False)
     return clean_df
@@ -107,9 +118,9 @@ if __name__ == "__main__":
     clean_df = clean_data(raw_data)
 
     count = len(clean_df)
-    avg = clean_df['Price'].mean()
-    min_price = clean_df['Price'].min()
-    max_price = clean_df['Price'].max()
+    avg = clean_df['Total Price'].mean()
+    min_price = clean_df['Total Price'].min()
+    max_price = clean_df['Total Price'].max()
 
     print("\n" + "=" * 30)
     print(f"MARKET REPORT: {user_input.upper()}\n")
@@ -119,5 +130,4 @@ if __name__ == "__main__":
     print(f"Maximum Price: ${max_price:,.2f}")
     print("=" * 30)
 
-
-    clean_df.to_csv("item_sales.csv", index = False)
+    clean_df.to_csv("item_sales.csv", index = False, float_format = '%.2f')
