@@ -1,6 +1,6 @@
 # eBay Market Analyzer
 
-![Nintendo 3DS Dashboard](https://github.com/iancdunn/eBay-Market-Analyzer/blob/main/Nintendo%203DS%20Sales%20Report.pdf)
+![Nintendo 3DS Dashboard](Nintendo 3DS Sales Report.pdf)
 
 A Python-based ETL tool that scrapes "Sold & Completed" listings from eBay to generate accurate market pricing reports. It automates data extraction using Selenium, performs rigorous data cleaning with Pandas, and filters outliers using Interquartile Range (IQR) logic to ensure statistical accuracy.
 
