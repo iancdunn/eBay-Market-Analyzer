@@ -7,7 +7,6 @@ A Python-based ETL tool that scrapes "Sold & Completed" listings from eBay to ge
 ## Features
 
 * **Automated Extraction:** Uses `Selenium` in headless mode to scrape listing prices and sale dates.
-* **Robust Selectors:** Implements strategies to handle eBay's ambiguous CSS selectors.
 * **ETL Pipeline:**
     * **Extract:** Scrapes raw HTML elements.
     * **Transform:** Cleans currency strings, parses irregular date formats using Regex, and casts data types.
